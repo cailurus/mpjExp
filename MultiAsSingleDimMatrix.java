@@ -6,6 +6,13 @@
 import mpi.*;
 public class MultiAsSingleDimMatrix{
 	public static final int N = 10;
+
+	public static void display(double[][] matrix, int row){
+		for(int i = 0; i<row; i++){
+			System.out.println(matrix[i][0]+" "+matrix[i][1]+" "+matrix[i][2]);
+		}
+	}
+
 	public static void main(String[] args) {
 		MPI.Init(args);
 
