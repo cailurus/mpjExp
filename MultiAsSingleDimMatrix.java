@@ -1,3 +1,8 @@
+/*
+ * created by Jinyang
+ * summer 2013
+ */
+
 import mpi.*;
 public class MultiAsSingleDimMatrix{
 	public static final int N = 10;
