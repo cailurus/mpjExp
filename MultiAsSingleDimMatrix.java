@@ -12,7 +12,7 @@ public class MultiAsSingleDimMatrix{
 			System.out.println(matrix[i][0]+" "+matrix[i][1]+" "+matrix[i][2]);
 		}
 	}
-
+	
 	public static void main(String[] args) {
 		MPI.Init(args);
 
