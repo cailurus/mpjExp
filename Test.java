@@ -23,7 +23,7 @@ public class Test{
 		return B;
 	}
 
-    public static void multi(Matrix m, Matrix n){
+    public static Matrix multi(Matrix m, Matrix n){
         Matrix q = new Matrix(10);
         q.mu = m.mu;
         q.nu = n.nu;
@@ -79,12 +79,7 @@ public class Test{
                 }
             }
         }
-
-        for(int i=0;i<q.tu;i++){
-            Triple tr = q.data[i];
-            System.out.print(tr.i + " " + tr.j + " " + tr.e);
-            System.out.println();
-        }
+        return q;
     }
 
     static class Triple{
@@ -134,30 +129,43 @@ public class Test{
         int tag2 = 2;
         int tag3 = 3;
         int peer = (rank == 0)?1:0;
+        if(rank == 0){
+            Triple a1 = new Triple(1,2,1);
+            Triple a2 = new Triple(2,1,1);
+            Triple a3 = new Triple(3,1,-5);
+            Triple b1 = new Triple(1,0,1);
+            Triple b2 = new Triple(1,1,2);
+            Triple b3 = new Triple(2,2,-1);
 
+            Matrix test1 = new Matrix(0);
+            test1.mu = 4;
+            test1.nu = 3;
+            test1.add(a1);
+            test1.add(a2);
+            test1.add(a3);
 
-        Triple a1 = new Triple(1,2,1);
-        Triple a2 = new Triple(2,1,1);
-        Triple a3 = new Triple(3,1,-5);
-        Triple b1 = new Triple(1,0,1);
-        Triple b2 = new Triple(1,1,2);
-        Triple b3 = new Triple(2,2,-1);
+            Matrix test2 = new Matrix(0);
+            test2.mu = 3;
+            test2.nu = 4;
+            test2.add(b1);
+            test2.add(b2);
+            test2.add(b3);
 
-        Matrix test1 = new Matrix(0);
-        test1.mu = 4;
-        test1.nu = 3;
-        test1.add(a1);
-        test1.add(a2);
-        test1.add(a3);
+            MPI.COMM_WORLD.Send(test1, 0, test1.mu*test1.nu, MPI.DOUBLE, peer, tag1);
+            MPI.COMM_WORLD.Send(test2, 0, test2.mu*test2.nu, MPI.DOUBLE, peer, tag2);
+            System.out.println("I'm sending.");
+        }else{
 
-        Matrix test2 = new Matrix(0);
-        test2.mu = 3;
-        test2.nu = 4;
-        test2.add(b1);
-        test2.add(b2);
-        test2.add(b3);
+            Matrix test1 = new Matrix(0);
+            test1.mu = 4;
+            test1.nu = 3;
+            Matrix test2 = new Matrix(0);
+            test2.mu = 3;
+            test2.nu = 4;
+            MPI.COMM_WORLD.Recv(test1, 0, test1.mu*test1.nu, MPI.DOUBLE, peer, tag1);
+            MPI.COMM_WORLD.Recv(test2, 0, test2.mu*test2.nu, MPI.DOUBLE, peer, tag2);
+            System.out.println("I'm receving.");
 
-        multi(test1, test2);
-    
+        }    
     }
 }
