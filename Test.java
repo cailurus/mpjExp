@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import mpi.*;
 
 public class Test{
 	public static void display(double[][] matrix, int row){
@@ -86,31 +87,6 @@ public class Test{
         }
     }
 
-	public static void main(String[] args) {
-        Triple a1 = new Triple(1,2,1);
-        Triple a2 = new Triple(2,1,1);
-        Triple a3 = new Triple(3,1,-5);
-        Triple b1 = new Triple(1,0,1);
-        Triple b2 = new Triple(1,1,2);
-        Triple b3 = new Triple(2,2,-1);
-
-        Matrix test1 = new Matrix(0);
-        test1.mu = 4;
-        test1.nu = 3;
-        test1.add(a1);
-        test1.add(a2);
-        test1.add(a3);
-
-        Matrix test2 = new Matrix(0);
-        test2.mu = 3;
-        test2.nu = 4;
-        test2.add(b1);
-        test2.add(b2);
-        test2.add(b3);
-
-        multi(test1, test2);
-	}
-
     static class Triple{
         int i;
         int j;
@@ -147,5 +123,40 @@ public class Test{
             data[tu++] = triple;    //size++  
             return true;  
         }  
+    }
+
+    public static void main(String[] args) {
+
+        MPI.Init(args);
+        int rank = MPI.COMM_WORLD.Rank();
+        int size = MPI.COMM_WORLD.Size();
+        int tag = 10;
+        int peer = (rank == 0)?1:0;
+        System.out.println("rank is "+rank);
+        System.out.println("size is "+size);
+    /*
+        Triple a1 = new Triple(1,2,1);
+        Triple a2 = new Triple(2,1,1);
+        Triple a3 = new Triple(3,1,-5);
+        Triple b1 = new Triple(1,0,1);
+        Triple b2 = new Triple(1,1,2);
+        Triple b3 = new Triple(2,2,-1);
+
+        Matrix test1 = new Matrix(0);
+        test1.mu = 4;
+        test1.nu = 3;
+        test1.add(a1);
+        test1.add(a2);
+        test1.add(a3);
+
+        Matrix test2 = new Matrix(0);
+        test2.mu = 3;
+        test2.nu = 4;
+        test2.add(b1);
+        test2.add(b2);
+        test2.add(b3);
+
+        multi(test1, test2);
+    */
     }
 }
