@@ -121,13 +121,15 @@ public class Test{
     }
 
     public static void main(String[] args) {
-
         MPI.Init(args);
         int rank = MPI.COMM_WORLD.Rank();
         int size = MPI.COMM_WORLD.Size();
-        int tag1 = 1;
-        int tag2 = 2;
-        int tag3 = 3;
+        int tag1_1 = 11;
+        int tag1_2 = 12;
+        int tag1_3 = 13;
+        int tag2_1 = 21;
+        int tag2_2 = 22;
+        int tag2_3 = 23;
         int peer = (rank == 0)?1:0;
         if(rank == 0){
             Triple a1 = new Triple(1,2,1);
@@ -154,39 +156,55 @@ public class Test{
             Matrix test3 = new Matrix(0);
             test3.mu = test1.mu;
             test3.nu = test2.nu;
-
-            for(int x : test1.data){
-                MPI.COMM_WORLD.Send(test1.data[x].i, 0, test1.mu*test1.nu, MPI.INT, peer, tag1_1);
-                MPI.COMM_WORLD.Send(test1.data[x].j, 0, test1.mu*test1.nu, MPI.INT, peer, tag1_2);
-                MPI.COMM_WORLD.Send(test1.data[x].e, 0, test1.mu*test1.nu, MPI.DOUBLE, peer, tag1_3);
+            for(int x=0; x<test1.tu; x++){
+                MPI.COMM_WORLD.Send(test1.data[x].i, 0, 1, MPI.INT, peer, tag1_1);
+                MPI.COMM_WORLD.Send(test1.data[x].j, 0, 1, MPI.INT, peer, tag1_2);
+                MPI.COMM_WORLD.Send(test1.data[x].e, 0, 1, MPI.DOUBLE, peer, tag1_3);
             }
-            for(int x : test2.data){
-                MPI.COMM_WORLD.Send(test2.data[x].i, 0, test2.mu*test2.nu, MPI.INT, peer, tag2_1);
-                MPI.COMM_WORLD.Send(test2.data[x].j, 0, test2.mu*test2.nu, MPI.INT, peer, tag2_2);
-                MPI.COMM_WORLD.Send(test2.data[x].e, 0, test2.mu*test2.nu, MPI.DOUBLE, peer, tag2_3);
+            for(int x=0; x<test2.tu; x++){
+                MPI.COMM_WORLD.Send(test2.data[x].i, 0, 1, MPI.INT, peer, tag2_1);
+                MPI.COMM_WORLD.Send(test2.data[x].j, 0, 1, MPI.INT, peer, tag2_2);
+                MPI.COMM_WORLD.Send(test2.data[x].e, 0, 1, MPI.DOUBLE, peer, tag2_3);
             }
 
             System.out.println("I'm sending.");
             //MPI.COMM_WORLD.Reduce(multi(test1,test2), 0, test3, 0, test3.mu*test3.nu, MPI.DOUBLE, MPI.SUM, 0);
             
         }else{
+            Triple a1 = new Triple(1,2,1);
+            Triple a2 = new Triple(2,1,1);
+            Triple a3 = new Triple(3,1,-5);
+
             Matrix test1 = new Matrix(0);
             test1.mu = 4;
             test1.nu = 3;
-            test1.tu = 3;
+            test1.add(a1);
+            test1.add(a2);
+            test1.add(a3);
+            System.out.println(test1.data[0].i);
+
             Matrix test2 = new Matrix(0);
             test2.mu = 3;
             test2.nu = 4;
             test2.tu = 3;
+            
             Matrix test3 = new Matrix(0);
             test3.mu = test1.mu;
             test3.nu = test2.nu;
-            for(int x : test1.data){
-                MPI.COMM_WORLD.Recv(test1.data[x], 0, test1.mu*test1.nu, MPI.DOUBLE, peer, tag1);
+
+            for(int x=0; x<test1.tu; x++){
+                MPI.COMM_WORLD.Recv(test1.data[x].i, 0, 1, MPI.INT, peer, tag1_1);
+                MPI.COMM_WORLD.Recv(test1.data[x].j, 0, 1, MPI.INT, peer, tag1_2);
+                MPI.COMM_WORLD.Recv(test1.data[x].e, 0, 1, MPI.DOUBLE, peer, tag1_3);
             }
-            MPI.COMM_WORLD.Recv(test2, 0, test2.mu*test2.nu, MPI.DOUBLE, peer, tag2);
+            for(int x=0; x<test2.tu; x++){
+                MPI.COMM_WORLD.Recv(test2.data[x].i, 0, 1, MPI.INT, peer, tag2_1);
+                MPI.COMM_WORLD.Recv(test2.data[x].j, 0, 1, MPI.INT, peer, tag2_2);
+                MPI.COMM_WORLD.Recv(test2.data[x].e, 0, 1, MPI.DOUBLE, peer, tag2_3);   
+            }
+            
             System.out.println("I'm receving.");
-            MPI.COMM_WORLD.Reduce(multi(test1,test2), 0, test3, 0, test3.mu*test3.nu, MPI.DOUBLE, MPI.SUM, 0);
+            //MPI.COMM_WORLD.Reduce(multi(test1,test2), 0, test3, 0, test3.mu*test3.nu, MPI.DOUBLE, MPI.SUM, 0);
         }
         MPI.Finalize();
     }
