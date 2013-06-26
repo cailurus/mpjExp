@@ -151,21 +151,43 @@ public class Test{
             test2.add(b2);
             test2.add(b3);
 
-            MPI.COMM_WORLD.Send(test1, 0, test1.mu*test1.nu, MPI.DOUBLE, peer, tag1);
-            MPI.COMM_WORLD.Send(test2, 0, test2.mu*test2.nu, MPI.DOUBLE, peer, tag2);
-            System.out.println("I'm sending.");
-        }else{
+            Matrix test3 = new Matrix(0);
+            test3.mu = test1.mu;
+            test3.nu = test2.nu;
 
+            for(int x : test1.data){
+                MPI.COMM_WORLD.Send(test1.data[x].i, 0, test1.mu*test1.nu, MPI.INT, peer, tag1_1);
+                MPI.COMM_WORLD.Send(test1.data[x].j, 0, test1.mu*test1.nu, MPI.INT, peer, tag1_2);
+                MPI.COMM_WORLD.Send(test1.data[x].e, 0, test1.mu*test1.nu, MPI.DOUBLE, peer, tag1_3);
+            }
+            for(int x : test2.data){
+                MPI.COMM_WORLD.Send(test2.data[x].i, 0, test2.mu*test2.nu, MPI.INT, peer, tag2_1);
+                MPI.COMM_WORLD.Send(test2.data[x].j, 0, test2.mu*test2.nu, MPI.INT, peer, tag2_2);
+                MPI.COMM_WORLD.Send(test2.data[x].e, 0, test2.mu*test2.nu, MPI.DOUBLE, peer, tag2_3);
+            }
+
+            System.out.println("I'm sending.");
+            //MPI.COMM_WORLD.Reduce(multi(test1,test2), 0, test3, 0, test3.mu*test3.nu, MPI.DOUBLE, MPI.SUM, 0);
+            
+        }else{
             Matrix test1 = new Matrix(0);
             test1.mu = 4;
             test1.nu = 3;
+            test1.tu = 3;
             Matrix test2 = new Matrix(0);
             test2.mu = 3;
             test2.nu = 4;
-            MPI.COMM_WORLD.Recv(test1, 0, test1.mu*test1.nu, MPI.DOUBLE, peer, tag1);
+            test2.tu = 3;
+            Matrix test3 = new Matrix(0);
+            test3.mu = test1.mu;
+            test3.nu = test2.nu;
+            for(int x : test1.data){
+                MPI.COMM_WORLD.Recv(test1.data[x], 0, test1.mu*test1.nu, MPI.DOUBLE, peer, tag1);
+            }
             MPI.COMM_WORLD.Recv(test2, 0, test2.mu*test2.nu, MPI.DOUBLE, peer, tag2);
             System.out.println("I'm receving.");
-
-        }    
+            MPI.COMM_WORLD.Reduce(multi(test1,test2), 0, test3, 0, test3.mu*test3.nu, MPI.DOUBLE, MPI.SUM, 0);
+        }
+        MPI.Finalize();
     }
 }
