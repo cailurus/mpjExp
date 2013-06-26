@@ -132,9 +132,8 @@ public class Test{
         int size = MPI.COMM_WORLD.Size();
         int tag = 10;
         int peer = (rank == 0)?1:0;
-        System.out.println("rank is "+rank);
-        System.out.println("size is "+size);
-    /*
+
+        /*
         Triple a1 = new Triple(1,2,1);
         Triple a2 = new Triple(2,1,1);
         Triple a3 = new Triple(3,1,-5);
