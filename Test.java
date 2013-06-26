@@ -130,10 +130,12 @@ public class Test{
         MPI.Init(args);
         int rank = MPI.COMM_WORLD.Rank();
         int size = MPI.COMM_WORLD.Size();
-        int tag = 10;
+        int tag1 = 1;
+        int tag2 = 2;
+        int tag3 = 3;
         int peer = (rank == 0)?1:0;
 
-        /*
+
         Triple a1 = new Triple(1,2,1);
         Triple a2 = new Triple(2,1,1);
         Triple a3 = new Triple(3,1,-5);
@@ -156,6 +158,6 @@ public class Test{
         test2.add(b3);
 
         multi(test1, test2);
-    */
+    
     }
 }
