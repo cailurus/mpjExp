@@ -179,7 +179,7 @@ public class Test{
             Matrix tempM = new Matrix(5);
             tempM = multi(test1, test2);
             
-            for(int x=0; x<tempM.data.tu; x++){
+            for(int x=0; x<tempM.tu; x++){
                 int[] temp1 = new int[2];
                 int[] temp11 = new int[2];
                 temp1[0] = tempM.data[x].i;
@@ -204,31 +204,34 @@ public class Test{
             Matrix test11 = new Matrix(0);
             test11.mu = 4;
             test11.nu = 3;
-            test11.tu = 3;
             Matrix test22 = new Matrix(0);
             test22.mu = 3;
             test22.nu = 4;
-            test22.tu = 3;
 
             for(int x=0; x<test1.tu; x++){
                 int[] temp1 = new int[2];
                 double[] temp2 = new double[1];
+                System.out.println("init finished");
                 MPI.COMM_WORLD.Recv(temp1, 0, 2, MPI.INT, peer, tag1_1);
                 MPI.COMM_WORLD.Recv(temp2, 0, 1, MPI.DOUBLE, peer, tag1_2);
-                test11.add(temp1[0],temp1[1],temp2[0]);
+                System.out.println("received ..");
+                test11.add(new Triple(temp1[0],temp1[1],temp2[0]));
+                System.out.println("added");
             }
             for(int x=0; x<test2.tu; x++){
                 int[] temp1 = new int[2];
                 double[] temp2 = new double[1];
                 MPI.COMM_WORLD.Recv(temp1, 0, 2, MPI.INT, peer, tag2_1);
                 MPI.COMM_WORLD.Recv(temp2, 0, 1, MPI.DOUBLE, peer, tag2_2);
-                test22.add(temp2[0], temp2[1], temp2[0]);
+                test22.add(new Triple(temp1[0], temp1[1], temp2[0]));
             }
             
             System.out.println("I'm receving.");
+            System.out.println(test11.data.length);
             Matrix tempM = new Matrix(5);
             tempM = multi(test11, test22);
-            for(int x=0; x<tempM.data.tu; x++){
+
+            for(int x=0; x<tempM.tu; x++){
                 int[] temp1 = new int[2];
                 int[] temp11 = new int[2];
                 temp1[0] = tempM.data[x].i;
