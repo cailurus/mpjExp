@@ -1,7 +1,10 @@
 import java.util.Arrays;
+import java.io.*;
+import java.util.*;
 import mpi.*;
 
 public class Test{
+    private static Random random = new Random();
 	public static void display(double[][] matrix, int row){
 		for(int i = 0; i<row; i++){
 			System.out.println(matrix[i][0]+" "+matrix[i][1]+" "+matrix[i][2]);
@@ -70,7 +73,7 @@ public class Test{
                         nlast = n.tu;
                     for(int w=n.rpos[brow];w<nlast;w++){
                         int ccol = n.data[w].j;
-                        double sum = m.data[p].e * n.data[w].e;  
+                        int sum = m.data[p].e * n.data[w].e;  
                         if(sum!=0){
                             Triple triple = new Triple(arow, ccol , sum);
                             q.add(triple);
@@ -85,8 +88,8 @@ public class Test{
     static class Triple{
         int i;
         int j;
-        double e;
-        Triple(int i, int j, double e){
+        int e;
+        Triple(int i, int j, int e){
             this.i = i;
             this.j = j;
             this.e = e;
@@ -121,6 +124,8 @@ public class Test{
     }
 
     public static void main(String[] args) {
+        int numberA = 0;
+        int numberB = 0;
         MPI.Init(args);
         int rank = MPI.COMM_WORLD.Rank();
         int size = MPI.COMM_WORLD.Size();
@@ -132,117 +137,94 @@ public class Test{
         int tag2_3 = 23;
         int peer = (rank == 0)?1:0;
         if(rank == 0){
-            Triple a1 = new Triple(1,2,1);
-            Triple a2 = new Triple(2,1,1);
-            Triple a3 = new Triple(3,1,-5);
-            Triple b1 = new Triple(1,0,1);
-            Triple b2 = new Triple(1,1,2);
-            Triple b3 = new Triple(2,2,-1);
-
             Matrix test1 = new Matrix(0);
-            test1.mu = 4;
-            test1.nu = 3;
-            test1.add(a1);
-            test1.add(a2);
-            test1.add(a3);
+            test1.mu = 20;
+            test1.nu = 20;
+            for (int n = 0; n < 400; n++){
+                Triple a = new Triple(random.nextInt(20), random.nextInt(20), random.nextInt(1000));
+                test1.add(a);
+                numberA += 1;
+            }
+                
 
             Matrix test2 = new Matrix(0);
-            test2.mu = 3;
-            test2.nu = 4;
-            test2.add(b1);
-            test2.add(b2);
-            test2.add(b3);
-            double[] m = new double[4];
+            test2.mu = 20;
+            test2.nu = 20;
+            for (int n = 0; n < 400; n++){
+                test2.add(new Triple(random.nextInt(20), random.nextInt(20), random.nextInt(1000)));
+                numberB += 1;
+            }
+
             Matrix test3 = new Matrix(0);
             test3.mu = test1.mu;
             test3.nu = test2.nu;
             for(int x=0; x<test1.tu; x++){
-                int[] temp1 = new int[2];
-                temp1[0] = test1.data[x].i;
-                temp1[1] = test1.data[x].j;
-                double[] temp2 = new double[1];
-                temp2[0] = test1.data[x].e;
-                MPI.COMM_WORLD.Send(temp1, 0, 2, MPI.INT, peer, tag1_1);
-                MPI.COMM_WORLD.Send(temp2, 0, 1, MPI.DOUBLE, peer, tag1_2);
+                int[] temp = new int[3];
+                temp[0] = test1.data[x].i;
+                temp[1] = test1.data[x].j;
+                temp[2] = test1.data[x].e;
+                MPI.COMM_WORLD.Send(temp, 0, 3, MPI.INT, peer, tag1_1);
             }
             for(int x=0; x<test2.tu; x++){
-                int[] temp1 = new int[2];
-                temp1[0] = test2.data[x].i;
-                temp1[1] = test2.data[x].j;
-                double[] temp2 = new double[1];
-                temp2[0] = test2.data[x].e;
-                MPI.COMM_WORLD.Send(temp1, 0, 2, MPI.INT, peer, tag2_1);
-                MPI.COMM_WORLD.Send(temp2, 0, 1, MPI.DOUBLE, peer, tag2_2);
+                int[] temp = new int[3];
+                temp[0] = test2.data[x].i;
+                temp[1] = test2.data[x].j;
+                temp[2] = test2.data[x].e;
+                MPI.COMM_WORLD.Send(temp, 0, 3, MPI.INT, peer, tag2_1);
             }
 
-            System.out.println("I'm sending.");
-            Matrix tempM = new Matrix(5);
+            System.out.println("I'm sending. 0");
+            Matrix tempM = new Matrix(0);
+            System.out.print("sss");
             tempM = multi(test1, test2);
-            
+            System.out.println(tempM.mu);
             for(int x=0; x<tempM.tu; x++){
-                int[] temp1 = new int[2];
-                int[] temp11 = new int[2];
-                temp1[0] = tempM.data[x].i;
-                temp1[1] = tempM.data[x].j;
-                double[] temp2 = new double[1];
-                double[] temp22 = new double[1];
-                temp2[0] = tempM.data[x].e;
-                MPI.COMM_WORLD.Reduce(temp1, 0, temp11, 0, 2, MPI.INT, MPI.SUM, 0);
-                MPI.COMM_WORLD.Reduce(temp2, 0, temp22, 0, 1, MPI.DOUBLE, MPI.SUM, 0);
+                int[] temp11 = new int[3];
+                int[] temp22 = new int[3];
+                temp11[0] = tempM.data[x].i;
+                temp11[1] = tempM.data[x].j;
+                temp11[2] = tempM.data[x].e;
+                tempM.data[x].display();
+                MPI.COMM_WORLD.Reduce(temp11, 0, temp22, 0, 3, MPI.INT, MPI.SUM, 0);
             }
             
         }else{
             Matrix test1 = new Matrix(0);
-            test1.mu = 4;
-            test1.nu = 3;
-            test1.tu = 3;
+            test1.mu = 20;
+            test1.nu = 20;
             Matrix test2 = new Matrix(0);
-            test2.mu = 3;
-            test2.nu = 4;
-            test2.tu = 3;
-            
-            Matrix test11 = new Matrix(0);
-            test11.mu = 4;
-            test11.nu = 3;
-            Matrix test22 = new Matrix(0);
-            test22.mu = 3;
-            test22.nu = 4;
+            test2.mu = 20;
+            test2.nu = 20;
 
-            for(int x=0; x<test1.tu; x++){
-                int[] temp1 = new int[2];
-                double[] temp2 = new double[1];
+            for(int x=0; x<numberA; x++){
+                int[] temp = new int[3];
                 System.out.println("init finished");
-                MPI.COMM_WORLD.Recv(temp1, 0, 2, MPI.INT, peer, tag1_1);
-                MPI.COMM_WORLD.Recv(temp2, 0, 1, MPI.DOUBLE, peer, tag1_2);
+                MPI.COMM_WORLD.Recv(temp, 0, 3, MPI.INT, peer, tag1_1);
                 System.out.println("received ..");
-                test11.add(new Triple(temp1[0],temp1[1],temp2[0]));
+                test1.add(new Triple(temp[0],temp[1],temp[2]));
                 System.out.println("added");
             }
-            for(int x=0; x<test2.tu; x++){
-                int[] temp1 = new int[2];
-                double[] temp2 = new double[1];
-                MPI.COMM_WORLD.Recv(temp1, 0, 2, MPI.INT, peer, tag2_1);
-                MPI.COMM_WORLD.Recv(temp2, 0, 1, MPI.DOUBLE, peer, tag2_2);
-                test22.add(new Triple(temp1[0], temp1[1], temp2[0]));
+            for(int x=0; x<numberB; x++){
+                int[] temp = new int[3];
+                MPI.COMM_WORLD.Recv(temp, 0, 3, MPI.INT, peer, tag2_1);
+                test2.add(new Triple(temp[0], temp[1], temp[2]));
             }
             
             System.out.println("I'm receving.");
-            System.out.println(test11.data.length);
-            Matrix tempM = new Matrix(5);
-            tempM = multi(test11, test22);
+            Matrix tempM = new Matrix(0);
+            tempM = multi(test1, test2);
 
             for(int x=0; x<tempM.tu; x++){
-                int[] temp1 = new int[2];
-                int[] temp11 = new int[2];
-                temp1[0] = tempM.data[x].i;
-                temp1[1] = tempM.data[x].j;
-                double[] temp2 = new double[1];
-                double[] temp22 = new double[1];
-                temp2[0] = tempM.data[x].e;
-                MPI.COMM_WORLD.Reduce(temp1, 0, temp11, 0, 2, MPI.INT, MPI.SUM, 0);
-                MPI.COMM_WORLD.Reduce(temp2, 0, temp22, 0, 1, MPI.DOUBLE, MPI.SUM, 0);
+                int[] temp11 = new int[3];
+                int[] temp22 = new int[3];
+                temp11[0] = tempM.data[x].i;
+                temp11[1] = tempM.data[x].j;
+                temp11[2] = tempM.data[x].e;
+                tempM.data[x].display();
+                MPI.COMM_WORLD.Reduce(temp11, 0, temp22, 0, 3, MPI.INT, MPI.SUM, 0);
             }
         }
+        System.out.println("end");
         MPI.Finalize();
     }
 }
