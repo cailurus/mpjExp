@@ -126,9 +126,11 @@ public class Test{
     public static void main(String[] args) {
         int numberA = 0;
         int numberB = 0;
+        int[] number = new int[2];
         MPI.Init(args);
         int rank = MPI.COMM_WORLD.Rank();
         int size = MPI.COMM_WORLD.Size();
+        int tagN = 1;
         int tag1_1 = 11;
         int tag2_1 = 21;
         int peer = (rank == 0)?1:0;
@@ -141,7 +143,6 @@ public class Test{
                 test1.add(a);
                 numberA += 1;
             }
-
             Matrix test2 = new Matrix(0);
             test2.mu = 20;
             test2.nu = 20;
@@ -153,11 +154,16 @@ public class Test{
             Matrix test3 = new Matrix(0);
             test3.mu = test1.mu;
             test3.nu = test2.nu;
+            number[0] = numberA;
+            number[1] = numberB;
+            MPI.COMM_WORLD.Send(number, 0, 2, MPI.INT, peer, tagN);
+
             for(int x=0; x<test1.tu; x++){
                 int[] temp = new int[3];
                 temp[0] = test1.data[x].i;
                 temp[1] = test1.data[x].j;
                 temp[2] = test1.data[x].e;
+                System.out.println(temp[0]+" "+temp[1]+" "+temp[2]);
                 MPI.COMM_WORLD.Send(temp, 0, 3, MPI.INT, peer, tag1_1);
             }
 
@@ -183,24 +189,23 @@ public class Test{
                 tempM.data[x].display();
                 MPI.COMM_WORLD.Reduce(temp11, 0, temp22, 0, 3, MPI.INT, MPI.SUM, 0);
             }
-            
-        }else{
+        }else if(rank == 1){
             Matrix test1 = new Matrix(0);
             test1.mu = 20;
             test1.nu = 20;
             Matrix test2 = new Matrix(0);
             test2.mu = 20;
             test2.nu = 20;
-
-            for(int x=0; x<numberA; x++){
+            int[] numberR = new int[2];
+            MPI.COMM_WORLD.Recv(numberR, 0, 2, MPI.INT, peer, tagN);
+            for(int x=0; x<numberR[0]; x++){
                 int[] temp = new int[3];
-                System.out.println("init finished");
                 MPI.COMM_WORLD.Recv(temp, 0, 3, MPI.INT, peer, tag1_1);
                 System.out.println("received ..");
                 test1.add(new Triple(temp[0],temp[1],temp[2]));
                 System.out.println("added");
             }
-            for(int x=0; x<numberB; x++){
+            for(int x=0; x<numberR[1]; x++){
                 int[] temp = new int[3];
                 MPI.COMM_WORLD.Recv(temp, 0, 3, MPI.INT, peer, tag2_1);
                 test2.add(new Triple(temp[0], temp[1], temp[2]));

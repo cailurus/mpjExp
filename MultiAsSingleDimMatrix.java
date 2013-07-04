@@ -31,6 +31,8 @@ public class MultiAsSingleDimMatrix{
 					a[(N*i)+j] = 10.0;
 
 			MPI.COMM_WORLD.Send(a, 0, N*N, MPI.DOUBLE, peer, tag);
+
+			
 			System.out.println("I'm sending");
 
 		}else if(rank == 1){
@@ -38,7 +40,9 @@ public class MultiAsSingleDimMatrix{
 			for(int i = 0; i<N; i++)
 				for(int j = 0; j<N; j++)
 					b[(N*i)+j] = 0;
+
 			MPI.COMM_WORLD.Recv(b, 0, N*N, MPI.DOUBLE, peer, tag);
+
 			System.out.println("I'm receving");
 			for(int i = 0; i<4; i++){
 				for(int j = 0; j<N; j++)
