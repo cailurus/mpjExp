@@ -130,11 +130,7 @@ public class Test{
         int rank = MPI.COMM_WORLD.Rank();
         int size = MPI.COMM_WORLD.Size();
         int tag1_1 = 11;
-        int tag1_2 = 12;
-        int tag1_3 = 13;
         int tag2_1 = 21;
-        int tag2_2 = 22;
-        int tag2_3 = 23;
         int peer = (rank == 0)?1:0;
         if(rank == 0){
             Matrix test1 = new Matrix(0);
@@ -145,7 +141,6 @@ public class Test{
                 test1.add(a);
                 numberA += 1;
             }
-                
 
             Matrix test2 = new Matrix(0);
             test2.mu = 20;
@@ -165,6 +160,7 @@ public class Test{
                 temp[2] = test1.data[x].e;
                 MPI.COMM_WORLD.Send(temp, 0, 3, MPI.INT, peer, tag1_1);
             }
+
             for(int x=0; x<test2.tu; x++){
                 int[] temp = new int[3];
                 temp[0] = test2.data[x].i;
