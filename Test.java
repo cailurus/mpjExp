@@ -136,8 +136,8 @@ public class Test{
         int peer = (rank == 0)?1:0;
         if(rank == 0){
             Matrix test1 = new Matrix(0);
-            test1.mu = 20;
-            test1.nu = 20;
+            test1.mu = 100;
+            test1.nu = 100;
             for (int n = 0; n < 400; n++){
                 Triple a = new Triple(random.nextInt(20), random.nextInt(20), random.nextInt(1000));
                 test1.add(a);
@@ -210,7 +210,6 @@ public class Test{
                 MPI.COMM_WORLD.Recv(temp, 0, 3, MPI.INT, peer, tag2_1);
                 test2.add(new Triple(temp[0], temp[1], temp[2]));
             }
-            
             System.out.println("I'm receving.");
             Matrix tempM = new Matrix(0);
             tempM = multi(test1, test2);
