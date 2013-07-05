@@ -136,18 +136,18 @@ public class Test{
         int peer = (rank == 0)?1:0;
         if(rank == 0){
             Matrix test1 = new Matrix(0);
-            test1.mu = 100;
-            test1.nu = 100;
-            for (int n = 0; n < 400; n++){
-                Triple a = new Triple(random.nextInt(20), random.nextInt(20), random.nextInt(1000));
+            test1.mu = 200;
+            test1.nu = 200;
+            for (int n = 0; n < random.nextInt(10); n++){
+                Triple a = new Triple(random.nextInt(test1.mu), random.nextInt(test1.nu), random.nextInt(1000));
                 test1.add(a);
                 numberA += 1;
             }
             Matrix test2 = new Matrix(0);
-            test2.mu = 20;
-            test2.nu = 20;
-            for (int n = 0; n < 400; n++){
-                test2.add(new Triple(random.nextInt(20), random.nextInt(20), random.nextInt(1000)));
+            test2.mu = 200;
+            test2.nu = 200;
+            for (int n = 0; n < random.nextInt(10); n++){
+                test2.add(new Triple(random.nextInt(test2.mu), random.nextInt(test2.nu), random.nextInt(1000)));
                 numberB += 1;
             }
 
@@ -191,11 +191,11 @@ public class Test{
             }
         }else if(rank == 1){
             Matrix test1 = new Matrix(0);
-            test1.mu = 20;
-            test1.nu = 20;
+            test1.mu = 200;
+            test1.nu = 200;
             Matrix test2 = new Matrix(0);
-            test2.mu = 20;
-            test2.nu = 20;
+            test2.mu = 200;
+            test2.nu = 200;
             int[] numberR = new int[2];
             MPI.COMM_WORLD.Recv(numberR, 0, 2, MPI.INT, peer, tagN);
             for(int x=0; x<numberR[0]; x++){
