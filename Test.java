@@ -40,13 +40,6 @@ public class Test{
         for(int mRow = 1; mRow<m.mu; mRow++){
             m.rpos[mRow] = m.rpos[mRow-1] + mNum[mRow-1];
         }
-        for(int xx : mNum){
-            System.out.println(xx);
-        }
-        System.out.println("---");
-        for(int yy : m.rpos){
-            System.out.println(yy);
-        }
         int[] nNum = new int[n.mu];
         for(int len=0; len<n.tu; len++){
             nNum[n.data[len].i]++;
@@ -156,6 +149,8 @@ public class Test{
             test3.nu = test2.nu;
             number[0] = numberA;
             number[1] = numberB;
+
+            long timeBegin = System.currentTimeMillis();
             MPI.COMM_WORLD.Send(number, 0, 2, MPI.INT, peer, tagN);
 
             for(int x=0; x<test1.tu; x++){
@@ -177,7 +172,6 @@ public class Test{
 
             System.out.println("I'm sending. 0");
             Matrix tempM = new Matrix(0);
-            System.out.print("sss");
             tempM = multi(test1, test2);
             System.out.println(tempM.mu);
             for(int x=0; x<tempM.tu; x++){
@@ -189,7 +183,8 @@ public class Test{
                 tempM.data[x].display();
                 MPI.COMM_WORLD.Reduce(temp11, 0, temp22, 0, 3, MPI.INT, MPI.SUM, 0);
             }
-        }else if(rank == 1){
+            System.out.println("This program use "+(System.currentTimeMillis()-timeBegin)/1000f + " s");
+        }else{
             Matrix test1 = new Matrix(0);
             test1.mu = 200;
             test1.nu = 200;
