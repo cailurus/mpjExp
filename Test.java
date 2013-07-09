@@ -162,13 +162,13 @@ public class Test{
                 MPI.COMM_WORLD.Send(temp, 0, test1.mu/args[1] * 3, MPI.INT, sendRank, tag1_1);
             }
 
-            int sendRank2 = 0;
             for(int x=0; x<test2.tu; x++){
                 int[] temp = new int[3];
                 temp[0] = test2.data[x].i;
                 temp[1] = test2.data[x].j;
                 temp[2] = test2.data[x].e;
-                MPI.COMM_WORLD.Send(temp, 0, 3, MPI.INT, sendRank2, tag2_1);
+                for(int sendRank2=1; sendRank2<args[1]; sendRank2++)
+                    MPI.COMM_WORLD.Send(temp, 0, 3, MPI.INT, sendRank2, tag2_1);
             }
 
             System.out.println("I'm sending. 0");
