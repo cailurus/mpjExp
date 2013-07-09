@@ -117,8 +117,6 @@ public class Test{
     }
 
     public static void main(String[] args) {
-        int numberA = 0;
-        int numberB = 0;
         int[] number = new int[2];
         MPI.Init(args);
         int rank = MPI.COMM_WORLD.Rank();
@@ -134,40 +132,43 @@ public class Test{
             for (int n = 0; n < random.nextInt(10); n++){
                 Triple a = new Triple(random.nextInt(test1.mu), random.nextInt(test1.nu), random.nextInt(1000));
                 test1.add(a);
-                numberA += 1;
             }
             Matrix test2 = new Matrix(0);
             test2.mu = 200;
             test2.nu = 200;
             for (int n = 0; n < random.nextInt(10); n++){
                 test2.add(new Triple(random.nextInt(test2.mu), random.nextInt(test2.nu), random.nextInt(1000)));
-                numberB += 1;
             }
 
             Matrix test3 = new Matrix(0);
             test3.mu = test1.mu;
             test3.nu = test2.nu;
-            number[0] = numberA;
-            number[1] = numberB;
+            number[0] = test1.tu;
+            number[1] = test2.tu;
 
             long timeBegin = System.currentTimeMillis();
             MPI.COMM_WORLD.Send(number, 0, 2, MPI.INT, peer, tagN);
 
-            for(int x=0; x<test1.tu; x++){
-                int[] temp = new int[3];
-                temp[0] = test1.data[x].i;
-                temp[1] = test1.data[x].j;
-                temp[2] = test1.data[x].e;
+            int sendRank1 = 0;
+            for(int x=0; x<test1.mu; x+=test1.mu/args[1]){
+                int[][] temp = new int[test1.mu/args[1]][3];
+                for(int y=0; y<test1.mu/args[1]; y++){
+                    temp[x+y][0] = test1.data[x+y][0].i;
+                    temp[x+y][1] = test1.data[x+y][1].j;
+                    temp[x+y][2] = test1.data[x+y][2].e;   
+                }
+                sendRank += 1;
                 System.out.println(temp[0]+" "+temp[1]+" "+temp[2]);
-                MPI.COMM_WORLD.Send(temp, 0, 3, MPI.INT, peer, tag1_1);
+                MPI.COMM_WORLD.Send(temp, 0, test1.mu/args[1] * 3, MPI.INT, sendRank, tag1_1);
             }
 
+            int sendRank2 = 0;
             for(int x=0; x<test2.tu; x++){
                 int[] temp = new int[3];
                 temp[0] = test2.data[x].i;
                 temp[1] = test2.data[x].j;
                 temp[2] = test2.data[x].e;
-                MPI.COMM_WORLD.Send(temp, 0, 3, MPI.INT, peer, tag2_1);
+                MPI.COMM_WORLD.Send(temp, 0, 3, MPI.INT, sendRank2, tag2_1);
             }
 
             System.out.println("I'm sending. 0");

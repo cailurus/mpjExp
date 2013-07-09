@@ -1,10 +1,8 @@
-import mpi.*;
 public class World{
-	public static void main(String args[]) throws Exception{
-		MPI.Init(args);
-		int me = MPI.COMM_WORLD.Rank();
-		int size = MPI.COMM_WORLD.Size();
-		System.out.println("Hi from <"+me+">");
-		MPI.Finalize();
+	public static void main(String args[]){
+		int x = 1;
+		for(int i = 0; i<4; i++)
+			x += 1;
+		System.out.println(x);
 	}
 }
