@@ -113,7 +113,18 @@ public class Test{
             ensureCapacity(tu + 1);   
             data[tu++] = triple;    //size++  
             return true;  
-        }  
+        }
+
+        public Matrix split(int all, int which){
+            Matrix newOne = new Matrix(0);
+            int scanBegin = (this.mu/all) * (which-1);
+            int scanEnd = (this.mu/all) * which;
+            for(int x=0; x<data.length; x++){
+                if(scanBegin < data[x].i <= scanEnd)
+                    newOne.add(data[x]);
+            }
+            return newOne;
+        }
     }
 
     public static void main(String[] args) {
@@ -149,17 +160,21 @@ public class Test{
             long timeBegin = System.currentTimeMillis();
             MPI.COMM_WORLD.Send(number, 0, 2, MPI.INT, peer, tagN);
 
-            int sendRank1 = 0;
-            for(int x=0; x<test1.mu; x+=test1.mu/args[1]){
-                int[][] temp = new int[test1.mu/args[1]][3];
-                for(int y=0; y<test1.mu/args[1]; y++){
-                    temp[x+y][0] = test1.data[x+y][0].i;
-                    temp[x+y][1] = test1.data[x+y][1].j;
-                    temp[x+y][2] = test1.data[x+y][2].e;   
+            
+            for(int x=0; x<args[1]; x++){
+                Matrix testEach = new Matrix(0);
+                testEach = test1.split(args[1], x+1);
+                for(int y = 0; y<testEach.tu; y++){
+                    int[] temp = new int[3];
+                    temp[0] = testEach.data[y].i;
+                    temp[1] = testEach.data[y].j;
+                    temp[2] = testEach.data[y].e;
+                    MPI.COMM_WORLD.Send(temp, 0, 3, MPI.INT, x+1, tag1_1);
                 }
-                sendRank += 1;
+                tag1_1 ++;
+                
                 System.out.println(temp[0]+" "+temp[1]+" "+temp[2]);
-                MPI.COMM_WORLD.Send(temp, 0, test1.mu/args[1] * 3, MPI.INT, sendRank, tag1_1);
+                
             }
 
             for(int x=0; x<test2.tu; x++){
@@ -194,9 +209,10 @@ public class Test{
             test2.nu = 200;
             int[] numberR = new int[2];
             MPI.COMM_WORLD.Recv(numberR, 0, 2, MPI.INT, peer, tagN);
-            for(int x=0; x<numberR[0]; x++){
-                int[] temp = new int[3];
-                MPI.COMM_WORLD.Recv(temp, 0, 3, MPI.INT, peer, tag1_1);
+
+            for(int x=0; x<test1.mu/args[1]; x++){
+                int[][] temp = new int[test1.mu/args[1]][3];
+                MPI.COMM_WORLD.Recv(temp, 0, test1.mu/args[1] * 3, MPI.INT, 0, tag1_1);
                 System.out.println("received ..");
                 test1.add(new Triple(temp[0],temp[1],temp[2]));
                 System.out.println("added");
