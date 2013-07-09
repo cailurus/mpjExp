@@ -154,16 +154,18 @@ public class Test{
             Matrix test3 = new Matrix(0);
             test3.mu = test1.mu;
             test3.nu = test2.nu;
-            number[0] = test1.tu;
-            number[1] = test2.tu;
 
+            Matrix testEach = new Matrix(0);
+            for(int xx=0; xx<args[1]; xx++){
+                testEach = test1.split(args[1], xx+1);
+                number[0] = testEach.tu;
+                number[1] = test2.tu;
+                MPI.COMM_WORLD.Send(number, 0, 2, MPI.INT, xx+1, tagN);
+            }
+            
             long timeBegin = System.currentTimeMillis();
-            MPI.COMM_WORLD.Send(number, 0, 2, MPI.INT, peer, tagN);
-
             
             for(int x=0; x<args[1]; x++){
-                Matrix testEach = new Matrix(0);
-                testEach = test1.split(args[1], x+1);
                 for(int y = 0; y<testEach.tu; y++){
                     int[] temp = new int[3];
                     temp[0] = testEach.data[y].i;
@@ -171,8 +173,6 @@ public class Test{
                     temp[2] = testEach.data[y].e;
                     MPI.COMM_WORLD.Send(temp, 0, 3, MPI.INT, x+1, tag1_1);
                 }
-                tag1_1 ++;
-                
                 System.out.println(temp[0]+" "+temp[1]+" "+temp[2]);
                 
             }
@@ -201,20 +201,20 @@ public class Test{
             }
             System.out.println("This program use "+(System.currentTimeMillis()-timeBegin)/1000f + " s");
         }else{
-            Matrix test1 = new Matrix(0);
-            test1.mu = 200;
-            test1.nu = 200;
+            Matrix testEachR = new Matrix(0);
+            testEachR.mu = 200/args[1];
+            testEachR.nu = 200;
             Matrix test2 = new Matrix(0);
             test2.mu = 200;
             test2.nu = 200;
             int[] numberR = new int[2];
-            MPI.COMM_WORLD.Recv(numberR, 0, 2, MPI.INT, peer, tagN);
+            MPI.COMM_WORLD.Recv(numberR, 0, 2, MPI.INT, 0, tagN);
 
-            for(int x=0; x<test1.mu/args[1]; x++){
-                int[][] temp = new int[test1.mu/args[1]][3];
-                MPI.COMM_WORLD.Recv(temp, 0, test1.mu/args[1] * 3, MPI.INT, 0, tag1_1);
+            for(int x=0; x<numberR[0]; x++){
+                int[] temp = new int[3];
+                MPI.COMM_WORLD.Recv(temp, 0, 3, MPI.INT, 0, tag1_1);
                 System.out.println("received ..");
-                test1.add(new Triple(temp[0],temp[1],temp[2]));
+                testEachR.add(new Triple(temp[0],temp[1],temp[2]));
                 System.out.println("added");
             }
             for(int x=0; x<numberR[1]; x++){
@@ -224,7 +224,7 @@ public class Test{
             }
             System.out.println("I'm receving.");
             Matrix tempM = new Matrix(0);
-            tempM = multi(test1, test2);
+            tempM = multi(testEachR, test2);
 
             for(int x=0; x<tempM.tu; x++){
                 int[] temp11 = new int[3];
