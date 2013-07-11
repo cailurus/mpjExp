@@ -74,7 +74,25 @@ public class TestI {
 			test2.add(new Triple(random.nextInt(test2.mu), random.nextInt(test2.nu), random.nextInt(10)));
 		}
 
-		File dataFile = new File("/Users/jinyangzhou/Desktop/test")
+		File dataFile = new File("/Users/jinyangzhou/Desktop/testfile");
+		if(dataFile.exists() && dataFile.isFile()){
+			System.out.println("We use the file exists.");
+		}else{
+			try{
+				dataFile.createNewFile();
+				System.out.println("Create a new testfile.");
+			}catch(IOException e){
+				System.out.println("Create testfile fails, error: "+e.getMessage());
+				return;
+			}
+			try{
+				PrintWriter pw = new PrintWriter(dataFile);
+				pw.write("we write here.");
+				pw.close();
+			}catch(FileNotFoundException e){
+				System.out.println("can't find the file, error: "+e.getMessage());
+			}
+		}
 	}
 
 }
