@@ -146,20 +146,41 @@ public class Test{
             Matrix test1 = new Matrix(0);
             test1.mu = 200;
             test1.nu = 200;
-            for (int n = 0; n < 100; n++){
-                Triple a = new Triple(random.nextInt(test1.mu), random.nextInt(test1.nu), random.nextInt(10));
-                test1.add(a);
-            }
+
             Matrix test2 = new Matrix(0);
             test2.mu = 200;
             test2.nu = 200;
-            for (int n = 0; n < 100; n++){
-                test2.add(new Triple(random.nextInt(test2.mu), random.nextInt(test2.nu), random.nextInt(10)));
-            }
+
             Matrix test3 = new Matrix(0);
             test3.mu = test1.mu;
             test3.nu = test2.nu;
-            
+
+            File dataFile1 = new File("/Users/jinyangzhou/Desktop/testMatrix1");
+            File dataFile2 = new File("/Users/jinyangzhou/Desktop/testMatrix2");
+            try{
+                FileReader fr = new FileReader(dataFile1);
+                BufferedReader br = new BufferedReader(fr);
+                String readOneLine = null;
+                while((readOneLine = br.readLine())!= null){
+                    String[] temp = readOneLine.split(" ");
+                    test1.add(new Triple(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]), Integer.parseInt(temp[2])));
+                    System.out.println("haha"+temp[0]+" "+temp[1]+" "+temp[2]);
+                }
+
+                fr = new FileReader(dataFile2);
+                br = new BufferedReader(fr);
+                while((readOneLine = br.readLine())!= null){
+                    String[] temp = readOneLine.split(" ");
+                    test1.add(new Triple(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]), Integer.parseInt(temp[2])));
+                    System.out.println("haha"+temp[0]+" "+temp[1]+" "+temp[2]);
+                }
+                fr.close();
+                br.close();
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+
+
             Matrix testEach = new Matrix(0);
             for(int xx=1; xx<Integer.parseInt(args[1]); xx++){
                 testEach = test1.split(Integer.parseInt(args[1])-1, xx);
@@ -208,9 +229,18 @@ public class Test{
             //MPI.COMM_WORLD.Barrier();
             System.out.println("This program use "+(System.currentTimeMillis()-timeBegin)/1000f + " s");
             System.out.println("reduce's result is ");
-            for(int i=0; i<200; i+=3){
-                System.out.println(temp22[i]+" "+temp22[i+1]+" "+temp22[i+2]);
+
+            File dataFile3 = new File("/Users/jinyangzhou/Desktop/testResult");
+
+            try{
+                PrintWriter pw = new PrintWriter(dataFile3);
+                for(int i=0; i<600; i+=3)
+                    pw.write(temp22[i+0]+" "+temp22[i+1]+" "+temp22[i+2]+'\n');
+                pw.close();
+            }catch(FileNotFoundException e){
+                System.out.println("can't find the file, error: "+e.getMessage());
             }
+
         }else{
             Matrix testEachR = new Matrix(0);
             testEachR.mu = 200;

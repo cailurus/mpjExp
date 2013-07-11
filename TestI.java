@@ -63,35 +63,30 @@ public class TestI {
 		Matrix test1 = new Matrix(0);
 		test1.mu = 200;
 		test1.nu = 200;
-		for (int n = 0; n < 100; n++){
-			Triple a = new Triple(random.nextInt(test1.mu), random.nextInt(test1.nu), random.nextInt(10));
-			test1.add(a);
-		}
+
 		Matrix test2 = new Matrix(0);
 		test2.mu = 200;
 		test2.nu = 200;
-		for (int n = 0; n < 100; n++){
-			test2.add(new Triple(random.nextInt(test2.mu), random.nextInt(test2.nu), random.nextInt(10)));
-		}
 
-		File dataFile = new File("/Users/jinyangzhou/Desktop/testfile");
-		if(dataFile.exists() && dataFile.isFile()){
-			System.out.println("We use the file exists.");
-		}else{
-			try{
-				dataFile.createNewFile();
-				System.out.println("Create a new testfile.");
-			}catch(IOException e){
-				System.out.println("Create testfile fails, error: "+e.getMessage());
-				return;
+
+		File dataFile1 = new File("/Users/jinyangzhou/Desktop/testMatrix1");
+		File dataFile2 = new File("/Users/jinyangzhou/Desktop/testMatrix2");
+
+		try{
+			PrintWriter pw1 = new PrintWriter(dataFile1);
+			for (int n = 0; n < 100; n++){
+				Triple a = new Triple(random.nextInt(test1.mu), random.nextInt(test1.nu), random.nextInt(10));
+				pw1.write(a.i+" "+a.j+" "+a.e+'\n');
 			}
-			try{
-				PrintWriter pw = new PrintWriter(dataFile);
-				pw.write("we write here.");
-				pw.close();
-			}catch(FileNotFoundException e){
-				System.out.println("can't find the file, error: "+e.getMessage());
+			pw1.close();
+			PrintWriter pw2 = new PrintWriter(dataFile2);
+			for (int n = 0; n < 100; n++){
+				Triple b = new Triple(random.nextInt(test2.mu), random.nextInt(test2.nu), random.nextInt(10));
+				pw2.write(b.i+" "+b.j+" "+b.e+'\n');
 			}
+			pw2.close();
+		}catch(FileNotFoundException e){
+			System.out.println("can't find the file, error: "+e.getMessage());
 		}
 	}
 
