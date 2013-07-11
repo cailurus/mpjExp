@@ -204,6 +204,7 @@ public class Test{
                 MPI.COMM_WORLD.Reduce(temp11, 0, temp22[rank], 0, 3, MPI.INT, MPI.SUM, 0);
             }*/
             int[] temp11 = new int[600];
+            
             MPI.COMM_WORLD.Reduce(temp11, 0, temp22, 0, 600, MPI.INT, MPI.SUM, 0);
             //MPI.COMM_WORLD.Barrier();
             System.out.println("This program use "+(System.currentTimeMillis()-timeBegin)/1000f + " s");
