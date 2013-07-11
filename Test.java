@@ -27,7 +27,7 @@ public class Test{
 	}
 
     public static Matrix multi(Matrix m, Matrix n){
-        Matrix q = new Matrix(10);
+        Matrix q = new Matrix(0);
         q.mu = m.mu;
         q.nu = n.nu;
 
@@ -49,7 +49,6 @@ public class Test{
         for(int nRow=1; nRow<n.mu; nRow++){
             n.rpos[nRow] = n.rpos[nRow-1] + nNum[nRow-1];
         }
-
         if(m.tu * n.tu !=0){
             for(int arow=0;arow<m.mu;arow++){
                 int mlast=0;
@@ -116,11 +115,11 @@ public class Test{
             return true;
         }
         public void display(){
+            System.out.println("mu is "+this.mu+", nu is "+this.nu+", tu is "+this.tu);
             for(Triple cc : this.data)
                 cc.display();
         }
         public Matrix split(int all, int which){
-            System.out.println(this.data.length);
             Matrix newOne = new Matrix(0);
             int scanBegin = (this.mu/all) * (which-1);
             int scanEnd = (this.mu/all) * which;
@@ -128,7 +127,6 @@ public class Test{
                 if(scanBegin < data[x].i && data[x].i <= scanEnd){
                     newOne.add(data[x]);
                 }
-                System.out.println("length"+this.data.length+" "+this.tu);
             }
             return newOne;
         }
@@ -142,22 +140,21 @@ public class Test{
         int tagN = 1;
         int tag1_1 = 11;
         int tag2_1 = 21;
-        int peer = (rank == 0)?1:0;
+        // adjust the result triple array.
+        int[] temp22 = new int[600];
         if(rank == 0){
             Matrix test1 = new Matrix(0);
-            System.out.println(test1.tu+" "+test1.data.length);
             test1.mu = 200;
             test1.nu = 200;
-            for (int n = 0; n < 10; n++){
-                Triple a = new Triple(random.nextInt(test1.mu), random.nextInt(test1.nu), random.nextInt(1000));
+            for (int n = 0; n < 100; n++){
+                Triple a = new Triple(random.nextInt(test1.mu), random.nextInt(test1.nu), random.nextInt(10));
                 test1.add(a);
-                System.out.println(test1.tu+" "+test1.data.length);
             }
             Matrix test2 = new Matrix(0);
             test2.mu = 200;
             test2.nu = 200;
-            for (int n = 0; n < 10; n++){
-                test2.add(new Triple(random.nextInt(test2.mu), random.nextInt(test2.nu), random.nextInt(1000)));
+            for (int n = 0; n < 100; n++){
+                test2.add(new Triple(random.nextInt(test2.mu), random.nextInt(test2.nu), random.nextInt(10)));
             }
             Matrix test3 = new Matrix(0);
             test3.mu = test1.mu;
@@ -166,23 +163,22 @@ public class Test{
             Matrix testEach = new Matrix(0);
             for(int xx=1; xx<Integer.parseInt(args[1]); xx++){
                 testEach = test1.split(Integer.parseInt(args[1])-1, xx);
-                testEach.display();
-                System.out.println("end split");
                 number[0] = testEach.tu;
                 number[1] = test2.tu;
                 System.out.println("before"+number[0]+" "+number[1]);
-                MPI.COMM_WORLD.Send(number, 0, 2, MPI.INT, xx+1, tagN);
+                MPI.COMM_WORLD.Send(number, 0, 2, MPI.INT, xx, tagN);
             }
             
             long timeBegin = System.currentTimeMillis();
             
             for(int x=1; x<Integer.parseInt(args[1]); x++){
+                testEach = test1.split(Integer.parseInt(args[1])-1, x);
                 for(int y = 0; y<testEach.tu; y++){
                     int[] temp = new int[3];
                     temp[0] = testEach.data[y].i;
                     temp[1] = testEach.data[y].j;
                     temp[2] = testEach.data[y].e;
-                    MPI.COMM_WORLD.Send(temp, 0, 3, MPI.INT, x+1, tag1_1);
+                    MPI.COMM_WORLD.Send(temp, 0, 3, MPI.INT, x, tag1_1);
                 }
             }
 
@@ -194,8 +190,7 @@ public class Test{
                 for(int sendRank2=1; sendRank2<Integer.parseInt(args[1]); sendRank2++)
                     MPI.COMM_WORLD.Send(temp, 0, 3, MPI.INT, sendRank2, tag2_1);
             }
-
-            System.out.println("I'm sending. 0");
+            /*
             Matrix tempM = new Matrix(0);
             tempM = multi(test1, test2);
             System.out.println(tempM.mu);
@@ -206,12 +201,19 @@ public class Test{
                 temp11[1] = tempM.data[x].j;
                 temp11[2] = tempM.data[x].e;
                 tempM.data[x].display();
-                MPI.COMM_WORLD.Reduce(temp11, 0, temp22, 0, 3, MPI.INT, MPI.SUM, 0);
-            }
+                MPI.COMM_WORLD.Reduce(temp11, 0, temp22[rank], 0, 3, MPI.INT, MPI.SUM, 0);
+            }*/
+            int[] temp11 = new int[600];
+            MPI.COMM_WORLD.Reduce(temp11, 0, temp22, 0, 600, MPI.INT, MPI.SUM, 0);
+            //MPI.COMM_WORLD.Barrier();
             System.out.println("This program use "+(System.currentTimeMillis()-timeBegin)/1000f + " s");
+            System.out.println("reduce's result is ");
+            for(int i=0; i<60; i++){
+                System.out.println(temp22[i]+" "+temp22[i+1]+" "+temp22[i+2]);
+            }
         }else{
             Matrix testEachR = new Matrix(0);
-            testEachR.mu = 200/Integer.parseInt(args[1]);
+            testEachR.mu = 200;
             testEachR.nu = 200;
             Matrix test2 = new Matrix(0);
             test2.mu = 200;
@@ -222,30 +224,36 @@ public class Test{
             for(int x=0; x<numberR[0]; x++){
                 int[] temp = new int[3];
                 MPI.COMM_WORLD.Recv(temp, 0, 3, MPI.INT, 0, tag1_1);
-                System.out.println("received ..");
+                System.out.println("Test 1 receiving "+rank);
                 testEachR.add(new Triple(temp[0],temp[1],temp[2]));
                 System.out.println("added");
             }
+            System.out.println("Test 1 receving finished."+rank);
+
             for(int x=0; x<numberR[1]; x++){
                 int[] temp = new int[3];
-                MPI.COMM_WORLD.Recv(temp, 0, 3, MPI.INT, peer, tag2_1);
+                System.out.println("Test 2 receiving"+rank);
+                MPI.COMM_WORLD.Recv(temp, 0, 3, MPI.INT, 0, tag2_1);
                 test2.add(new Triple(temp[0], temp[1], temp[2]));
             }
-            System.out.println("I'm receving.");
+            System.out.println("Test 2 receiving finished."+rank);
             Matrix tempM = new Matrix(0);
+            //testEachR.display();
+            //test2.display();
             tempM = multi(testEachR, test2);
+            System.out.println(tempM.mu+" "+tempM.nu+" "+tempM.tu+" "+rank);
+            System.out.println("multi ok "+rank);
 
+            int[] temp11 = new int[600];
             for(int x=0; x<tempM.tu; x++){
-                int[] temp11 = new int[3];
-                int[] temp22 = new int[3];
-                temp11[0] = tempM.data[x].i;
-                temp11[1] = tempM.data[x].j;
-                temp11[2] = tempM.data[x].e;
+                temp11[(rank-1)*100+3*x+1] = tempM.data[x].i;
+                temp11[(rank-1)*100+3*x+2] = tempM.data[x].j;
+                temp11[(rank-1)*100+3*x+3] = tempM.data[x].e;
+                System.out.print(rank);
                 tempM.data[x].display();
-                MPI.COMM_WORLD.Reduce(temp11, 0, temp22, 0, 3, MPI.INT, MPI.SUM, 0);
             }
+            MPI.COMM_WORLD.Reduce(temp11, 0, temp22, 0, 600, MPI.INT, MPI.SUM, 0);
         }
-        System.out.println("end");
         MPI.Finalize();
     }
 }

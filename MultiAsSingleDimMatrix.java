@@ -15,40 +15,28 @@ public class MultiAsSingleDimMatrix{
 	
 	public static void main(String[] args) {
 		MPI.Init(args);
-
+		int[] all = new int[2];
 		int rank = MPI.COMM_WORLD.Rank();
 		int size = MPI.COMM_WORLD.Size();
 		int tag = 10;
-		int peer = (rank == 0)? 1:0;
 		System.out.println("rank is "+rank);
 		System.out.println("size is "+size);
-
 		if(rank == 0){
-			double [] a = new double [N*N];
-
-			for(int i=0; i<N; i++)
-				for(int j=0; j<N; j++)
-					a[(N*i)+j] = 10.0;
-
-			MPI.COMM_WORLD.Send(a, 0, N*N, MPI.DOUBLE, peer, tag);
-
-			
+			int[] a = new int[2];
+			a[0] = 1;
+			a[1] = 1;
+			for(int p=1; p<4; p++)
+				MPI.COMM_WORLD.Send(a, 0, 2, MPI.INT, p, tag);
 			System.out.println("I'm sending");
+			MPI.COMM_WORLD.Reduce(a, 0, all, 0, 2, MPI.INT, MPI.SUM, 0);
+			System.out.println("result is "+all[0]+all[1]);
+		}else{
+			int[] b = new int [2];
 
-		}else if(rank == 1){
-			double [] b = new double [N*N];
-			for(int i = 0; i<N; i++)
-				for(int j = 0; j<N; j++)
-					b[(N*i)+j] = 0;
-
-			MPI.COMM_WORLD.Recv(b, 0, N*N, MPI.DOUBLE, peer, tag);
-
-			System.out.println("I'm receving");
-			for(int i = 0; i<4; i++){
-				for(int j = 0; j<N; j++)
-					System.out.println(b[(N*i)+j]+"this is "+(N*i+j));
-				System.out.println("\n");
-			}
+			MPI.COMM_WORLD.Recv(b, 0, 2, MPI.INT, 0, tag);
+			System.out.println("Ive received "+b[0]+" "+b[1]);
+			MPI.COMM_WORLD.Reduce(b, 0, all, 0, 2, MPI.INT, MPI.SUM, 0);
+			System.out.println("reduced");
 		}
 		MPI.Finalize();
 	}
