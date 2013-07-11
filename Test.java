@@ -204,12 +204,11 @@ public class Test{
                 MPI.COMM_WORLD.Reduce(temp11, 0, temp22[rank], 0, 3, MPI.INT, MPI.SUM, 0);
             }*/
             int[] temp11 = new int[600];
-            
             MPI.COMM_WORLD.Reduce(temp11, 0, temp22, 0, 600, MPI.INT, MPI.SUM, 0);
             //MPI.COMM_WORLD.Barrier();
             System.out.println("This program use "+(System.currentTimeMillis()-timeBegin)/1000f + " s");
             System.out.println("reduce's result is ");
-            for(int i=0; i<60; i++){
+            for(int i=0; i<200; i+=3){
                 System.out.println(temp22[i]+" "+temp22[i+1]+" "+temp22[i+2]);
             }
         }else{
