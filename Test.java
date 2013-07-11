@@ -157,6 +157,9 @@ public class Test{
 
             File dataFile1 = new File("/Users/jinyangzhou/Desktop/testMatrix1");
             File dataFile2 = new File("/Users/jinyangzhou/Desktop/testMatrix2");
+
+            long timeBegin = System.currentTimeMillis();
+            
             try{
                 FileReader fr = new FileReader(dataFile1);
                 BufferedReader br = new BufferedReader(fr);
@@ -164,7 +167,6 @@ public class Test{
                 while((readOneLine = br.readLine())!= null){
                     String[] temp = readOneLine.split(" ");
                     test1.add(new Triple(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]), Integer.parseInt(temp[2])));
-                    System.out.println("haha"+temp[0]+" "+temp[1]+" "+temp[2]);
                 }
 
                 fr = new FileReader(dataFile2);
@@ -172,7 +174,6 @@ public class Test{
                 while((readOneLine = br.readLine())!= null){
                     String[] temp = readOneLine.split(" ");
                     test1.add(new Triple(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]), Integer.parseInt(temp[2])));
-                    System.out.println("haha"+temp[0]+" "+temp[1]+" "+temp[2]);
                 }
                 fr.close();
                 br.close();
@@ -180,17 +181,17 @@ public class Test{
                 e.printStackTrace();
             }
 
+            long time1 = System.currentTimeMillis();
+            System.out.println("Input part use "+(time1-timeBegin)/1000f + " s.");
 
             Matrix testEach = new Matrix(0);
             for(int xx=1; xx<Integer.parseInt(args[1]); xx++){
                 testEach = test1.split(Integer.parseInt(args[1])-1, xx);
                 number[0] = testEach.tu;
                 number[1] = test2.tu;
-                System.out.println("before"+number[0]+" "+number[1]);
+                //System.out.println("before"+number[0]+" "+number[1]);
                 MPI.COMM_WORLD.Send(number, 0, 2, MPI.INT, xx, tagN);
             }
-            
-            long timeBegin = System.currentTimeMillis();
             
             for(int x=1; x<Integer.parseInt(args[1]); x++){
                 testEach = test1.split(Integer.parseInt(args[1])-1, x);
@@ -227,8 +228,8 @@ public class Test{
             int[] temp11 = new int[600];
             MPI.COMM_WORLD.Reduce(temp11, 0, temp22, 0, 600, MPI.INT, MPI.SUM, 0);
             //MPI.COMM_WORLD.Barrier();
-            System.out.println("This program use "+(System.currentTimeMillis()-timeBegin)/1000f + " s");
-            System.out.println("reduce's result is ");
+            long time2 = System.currentTimeMillis();
+            System.out.println("Calculation part use "+(time2-timeBegin)/1000f + " s.");
 
             File dataFile3 = new File("/Users/jinyangzhou/Desktop/testResult");
 
@@ -240,6 +241,9 @@ public class Test{
             }catch(FileNotFoundException e){
                 System.out.println("can't find the file, error: "+e.getMessage());
             }
+
+            long time3 = System.currentTimeMillis();
+            System.out.println("Output part use "+(time3-timeBegin)/1000f + " s.");
 
         }else{
             Matrix testEachR = new Matrix(0);
@@ -254,15 +258,15 @@ public class Test{
             for(int x=0; x<numberR[0]; x++){
                 int[] temp = new int[3];
                 MPI.COMM_WORLD.Recv(temp, 0, 3, MPI.INT, 0, tag1_1);
-                System.out.println("Test 1 receiving "+rank);
+                //System.out.println("Test 1 receiving "+rank);
                 testEachR.add(new Triple(temp[0],temp[1],temp[2]));
-                System.out.println("added");
+                //System.out.println("added");
             }
             System.out.println("Test 1 receving finished."+rank);
 
             for(int x=0; x<numberR[1]; x++){
                 int[] temp = new int[3];
-                System.out.println("Test 2 receiving"+rank);
+                //System.out.println("Test 2 receiving"+rank);
                 MPI.COMM_WORLD.Recv(temp, 0, 3, MPI.INT, 0, tag2_1);
                 test2.add(new Triple(temp[0], temp[1], temp[2]));
             }
@@ -279,8 +283,6 @@ public class Test{
                 temp11[(rank-1)*100+3*x+1] = tempM.data[x].i;
                 temp11[(rank-1)*100+3*x+2] = tempM.data[x].j;
                 temp11[(rank-1)*100+3*x+3] = tempM.data[x].e;
-                System.out.print(rank);
-                tempM.data[x].display();
             }
             MPI.COMM_WORLD.Reduce(temp11, 0, temp22, 0, 600, MPI.INT, MPI.SUM, 0);
         }
