@@ -159,7 +159,7 @@ public class Test{
             Matrix test3 = new Matrix(0);
             test3.mu = test1.mu;
             test3.nu = test2.nu;
-
+            
             Matrix testEach = new Matrix(0);
             for(int xx=1; xx<Integer.parseInt(args[1]); xx++){
                 testEach = test1.split(Integer.parseInt(args[1])-1, xx);
