@@ -17,6 +17,7 @@ public class TestI {
             System.out.println("this triple is "+this.i +" "+this.j+" "+this.e+" .");
         }
     }
+    
     static class Matrix{
         Triple[] data;
         int mu;
@@ -67,7 +68,6 @@ public class TestI {
 		Matrix test2 = new Matrix(0);
 		test2.mu = 200;
 		test2.nu = 200;
-
 
 		File dataFile1 = new File("/Users/jinyangzhou/Desktop/testMatrix1");
 		File dataFile2 = new File("/Users/jinyangzhou/Desktop/testMatrix2");
