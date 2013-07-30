@@ -7,8 +7,9 @@ public class TestI {
     static class Triple{
         int i;
         int j;
-        int e;
-        Triple(int i, int j, int e){
+        //int e;
+        double e;
+        Triple(int i, int j, double e){
             this.i = i;
             this.j = j;
             this.e = e;
@@ -62,12 +63,12 @@ public class TestI {
 
 	public static void main(String[] args) {
 		Matrix test1 = new Matrix(0);
-		test1.mu = 200;
-		test1.nu = 200;
+		test1.mu = 20;
+		test1.nu = 20;
 
 		Matrix test2 = new Matrix(0);
-		test2.mu = 200;
-		test2.nu = 200;
+		test2.mu = 20;
+		test2.nu = 20;
 
 		File dataFile1 = new File("/Users/jinyangzhou/Desktop/testMatrix1");
 		File dataFile2 = new File("/Users/jinyangzhou/Desktop/testMatrix2");
@@ -75,13 +76,13 @@ public class TestI {
 		try{
 			PrintWriter pw1 = new PrintWriter(dataFile1);
 			for (int n = 0; n < 100; n++){
-				Triple a = new Triple(random.nextInt(test1.mu), random.nextInt(test1.nu), random.nextInt(10));
+				Triple a = new Triple(random.nextInt(test1.mu), random.nextInt(test1.nu), random.nextDouble()*10);
 				pw1.write(a.i+" "+a.j+" "+a.e+'\n');
 			}
 			pw1.close();
 			PrintWriter pw2 = new PrintWriter(dataFile2);
 			for (int n = 0; n < 100; n++){
-				Triple b = new Triple(random.nextInt(test2.mu), random.nextInt(test2.nu), random.nextInt(10));
+				Triple b = new Triple(random.nextInt(test2.mu), random.nextInt(test2.nu), random.nextDouble()*10);
 				pw2.write(b.i+" "+b.j+" "+b.e+'\n');
 			}
 			pw2.close();
